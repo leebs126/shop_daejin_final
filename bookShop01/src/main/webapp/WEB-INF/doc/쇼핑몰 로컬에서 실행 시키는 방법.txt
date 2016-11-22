@@ -1,0 +1,9 @@
+1."src\\main\\webapp\\resources\\WEB-INF\\back_image"의 
+  user_reco_image_repo.zip 압축을 해제한 후  폴더를
+  c드라이브에 복사한다.
+
+2."src\\main\\webapp\\resources\\WEB-INF\\erd"의 
+  daejin_schema_20161122.sql을 sqldeveloper로 열고서
+  스크립트 실행한다.
+
+3.
