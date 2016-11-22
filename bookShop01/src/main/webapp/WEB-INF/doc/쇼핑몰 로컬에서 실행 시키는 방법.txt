@@ -6,4 +6,5 @@
   daejin_schema_20161122.sql을 sqldeveloper로 열고서
   스크립트 실행한다.
 
-3.
+3.공유폴더의 fil_repo.zip을 내려 받은 후 압축을 풀어서 
+ C드라이브에 복사한다.
