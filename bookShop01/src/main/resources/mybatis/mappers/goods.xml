@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mapper.goods">
+<!-- 리절트 맵 정의 -->	
+	<resultMap id="goodsResult" type="com.bookshop01.goods.vo.GoodsBean">
+		<result property="goods_id" column="goods_id" />
+		<result property="goods_title" column="goods_title" />
+		<result property="goods_writer" column="goods_writer" />
+		<result property="goods_price" column="goods_price" />
+		<result property="goods_publisher" column="goods_publisher" />
+		
+		<result property="goods_type" column="goods_type" />
+		<result property="goods_sales_price" column="goods_sales_price" />
+		<result property="goods_published_date" column="goods_published_date" />
+		<result property="goods_total_page" column="goods_total_page" />
+		<result property="goods_isbn" column="goods_isbn" />
+		<result property="goods_delivery_price" column="goods_delivery_price" />
+		<result property="goods_delivery_date" column="goods_delivery_date" />
+		
+		<result property="goods_fileName" column="fileName" />
+		<result property="goods_sort" column="goods_sort" />
+		<result property="goods_writer_intro" column="goods_writer_intro" />
+		<result property="goods_contents_order" column="goods_contents_order" />
+		<result property="goods_intro" column="goods_intro" />
+	</resultMap>	
+
+	<resultMap id="imageResult" type="com.bookshop01.goods.vo.ImageFileBean">
+	   <result property="goods_id" column="goods_id" />
+	   <result property="fileName" column="fileName" />
+	   <result property="reg_id" column="reg_id" />
+	   <result property="image_id" column="image_id" />
+	   <result property="fileType" column="fileType" />
+	</resultMap>
+	
+	<resultMap id="reviewResult" type="com.bookshop01.goods.vo.ReviewBean">
+	   <result property="review_id" column="review_id" />
+	   <result property="member_id" column="member_id" />
+	   <result property="goods_id" column="goods_id" />
+	   <result property="review_pw" column="review_pw" />
+	   <result property="review_title" column="review_title" />
+	   <result property="review_content" column="review_content" />
+	   <result property="reg_date" column="reg_date" />
+	</resultMap>
+	
+   <resultMap id="searchWordResult" type="com.bookshop01.goods.vo.SearchBean">
+	   <result property="search_word_id" column="search_word_id" />
+	   <result property="search_word" column="search_word" />
+	   <result property="search_count" column="search_count" />
+	   <result property="credate" column="credate" />
+	</resultMap>
+	
+	 <resultMap id="popupResult" type="com.bookshop01.admin.popup.vo.PopupBean">
+	   <result property="popup_id" column="popup_id" />
+	   <result property="goods_id" column="goods_id" />
+	   <result property="member_id" column="member_id" />
+	   <result property="popup_type" column="popup_type" />
+	   <result property="popup_message" column="popup_message" />
+	   <result property="popup_imagename" column="popup_imagename" />
+	   <result property="credate" column="credate" />
+	</resultMap>	
+
+    <resultMap id="userRecoResult" type="com.bookshop01.goods.vo.UserRecoBean">
+	   <result property="user_reco_id" column="user_reco_id" />
+	   <result property="member_id" column="member_id" />
+	   <result property="reco_goods_title" column="reco_goods_title" />
+	   <result property="reco_goods_content" column="reco_goods_content" />
+	   <result property="reco_goods_imagename" column="reco_goods_imagename" />
+	   <result property="goods_id" column="goods_id" />
+	   <result property="credate" column="credate" />
+	</resultMap>		
+	
+   
+      <select id="listGoods" parameterType="String" resultMap="goodsResult"   >
+        <![CDATA[
+         select t.*
+          from(
+			select g.*,d.fileName from t_goods_info g, t_goods_detail_image d
+        	where g.goods_id=d.goods_id 
+        	and d.filetype='main_image'
+        	and goods_type=#{goods_type}
+            order by g.goods_creDate desc)  t
+	             where   rowNum <12
+	    ]]>
+	</select>
+	
+	<select id="goodsDetail" resultMap="goodsResult"   parameterType="String"  >
+	    <![CDATA[
+		     select g.*,d.fileName from t_goods_info g, t_goods_detail_image d
+	        where g.goods_id=d.goods_id
+	        and d.filetype='main_image'
+	        and g.goods_id=#{goods_id}
+	        order by g.goods_id
+    	]]>
+	</select>
+	<select id="goodsDetailImage" resultMap="imageResult"   parameterType="String"  >
+	    <![CDATA[
+		    	select * from  t_goods_detail_image 
+		    	where  fileType!='main_image'
+				and goods_id=#{goods_id}
+    	]]>
+	</select>
+   <select id="searchGoods" resultMap="goodsResult"   parameterType="String"  >
+	    <![CDATA[
+		select g.*,d.fileName from t_goods_info g, t_goods_detail_image d
+        where g.goods_id=d.goods_id
+        and d.filetype='main_image'
+        and g.goods_title like '%'|| #{searchWord} || '%'
+        order by g.goods_creDate desc
+		]]>
+	</select>	
+	
+	<select id="keywordSearch" resultType="String"   parameterType="String"  >
+	    <![CDATA[
+           select goods_title from t_goods_info 
+                               where         
+                               goods_title like '%'|| #{keyword} || '%'
+                               order by goods_creDate desc
+		]]>
+	</select>
+	
+
+<select id="reviewList" parameterType="reviewBean" resultMap="reviewResult"   >
+    select * from
+          (select rowNum as recNum,
+		           review_id,
+		           member_id,
+		           goods_id,
+		           review_pw,
+		           review_title,
+		           review_content,
+		           reg_date         
+		          from (select * from t_shoping_review
+		               where
+		               goods_id=#{goods_id}
+		                order by reg_date desc))
+   where
+ recNum between (#{chapter}-1)*100+ (#{pageNum}-1)*10+1 and (#{chapter}-1)*100+(#{pageNum})*10
+</select>
+
+<insert id="insertReview" parameterType="reviewBean" >
+    <selectKey resultType="String" keyProperty="review_id" order="BEFORE">
+         select seq_review_id.nextval from dual
+    </selectKey>
+	insert into t_shoping_review (review_id,
+	                              member_id,
+	                              goods_id,
+	                              review_title,
+	                              review_content,
+	                              review_pw)
+	                       values(#{review_id},
+	                              #{member_id},
+	                              #{goods_id},
+	                              #{review_title},
+	                              #{review_content},
+	                              #{review_pw})        
+</insert>	
+<select id="mainSettingList" parameterType="String" resultMap="goodsResult"   >
+   select goods_type from t_shoping_main_setting
+   where
+   member_id=#{member_id}
+   and show_yn='y' 
+</select>
+
+
+<select id="searchWordList"  resultMap="searchWordResult"   >
+   select * from t_shoping_search_word
+   where
+   search_count>=200
+   
+</select>
+
+<select id="detailSearch"  resultMap="goodsResult"   >
+   select * from t_goods_info
+   <where>
+     <if test="goods_title!='' and goods_title!=null" >
+       goods_title=#{goods_title}
+     </if>
+     <if test="goods_writer!='' and goods_writer!=null" >
+      and  goods_writer=#{goods_writer}
+     </if>
+     <if test="goods_publisher!='' and goods_publisher!=null" >
+      and  goods_publisher=#{goods_publisher}
+     </if>
+     
+     <if test="begin_pub_date!='' and begin_pub_date!=null 
+               and end_pub_date!='' and end_pub_date!=null" >
+      goods_published_date between begin_pub_date and end_pub_date
+     </if>
+   </where>
+   
+</select>
+
+
+<select id="popupList"  resultMap="popupResult"   >
+   select * from  
+            (select * from t_shoping_popup
+             order by credate desc)
+   where rowNum=1
+</select>
+
+<select id="userRecoList" parameterType="String" resultMap="userRecoResult"   >
+    select * from 
+              (select rowNum as recNum,
+				           user_reco_id,
+				           member_id,
+				           goods_id,
+				           reco_goods_title,
+				           reco_goods_content,
+				           reco_goods_imagename,
+				           credate         
+				          from (select * from t_shoping_user_reco
+				                          where
+				                          goods_id=#{goods_id}
+				                          order by credate desc))  
+   where
+   recNum between (#{chapter}-1)*100+ (#{pageNum}-1)*10+1 and (#{chapter}-1)*100+(#{pageNum})*10
+  
+</select>
+
+<insert id="addUserRecoGoods" parameterType="userRecoBean" >
+    <selectKey resultType="String" keyProperty="user_reco_id" order="BEFORE">
+         select seq_user_reco_id.nextval from dual
+    </selectKey>
+	insert into t_shoping_user_reco(user_reco_id,
+	                                member_id,
+	                                goods_id,
+	                                reco_goods_title,
+	                                reco_goods_content,
+	                                reco_goods_imagename)
+	                       values(#{user_reco_id},
+	                              #{member_id},
+	                              #{goods_id},
+	                              #{reco_goods_title},
+	                              #{reco_goods_content},
+	                              #{reco_goods_imagename})        
+</insert>
+
+</mapper>
+

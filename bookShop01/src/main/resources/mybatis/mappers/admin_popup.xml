@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mapper.admin.popup">
+<!-- 리절트 맵 정의 -->	
+	<resultMap id="popupResult" type="com.bookshop01.admin.popup.vo.PopupBean">
+		<result property="popup_id" column="popup_id" />
+		<result property="goods_id" column="goods_id" />
+		<result property="member_id" column="member_id" />
+		<result property="popup_imagename" column="popup_imagename" />
+		<result property="popup_type" column="popup_type" />
+		<result property="popup_message" column="popup_message" />
+		<result property="credate" column="credate" />
+	</resultMap>	
+
+	<insert id="addPopup" parameterType="popupBean"  >
+	    <selectKey resultType="String" keyProperty="popup_id" order="BEFORE">
+	    	select seq_popup_id.nextval from dual
+	    </selectKey>
+	    <![CDATA[
+		    	insert into t_shoping_popup(popup_id,
+		    	                           goods_id,
+		    	                           member_id,
+		    	                           popup_imagename,
+		    	                           popup_type,
+		    	                           popup_message)
+		        					values(#{popup_id},
+		        							#{goods_id},
+		        							#{member_id},
+		        							#{popup_imagename},
+		        							#{popup_type},
+		        							#{popup_message}
+		        							)
+    	]]>
+	</insert>
+	
+	<select id="listPopupGoods" parameterType="java.util.HashMap" resultMap="popupResult">
+	   select * from t_shoping_popup
+	   order by credate desc
+	</select>
+	
+	<delete id="deletePopup" parameterType="string">
+	  delete from t_shoping_popup
+	  where 
+	  goods_id=#{goods_id}
+	</delete>
+</mapper>
